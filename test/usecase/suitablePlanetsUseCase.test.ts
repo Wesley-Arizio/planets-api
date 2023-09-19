@@ -1,4 +1,5 @@
 import { Planet } from "../../src/entities/planet";
+import { RepositoryError } from "../../src/repository";
 import { SuitablePlanetsUseCase } from "../../src/usecase/suitablePlanetsUseCase";
 import { MockRepository } from "../mock/repository";
 
@@ -51,7 +52,7 @@ describe("SuitablePlanetsUseCase", () => {
 
     jest.spyOn(repo, "getMany").mockImplementationOnce(() => {
       return new Promise((_resolve, reject) => {
-        return reject("Database column does not exist");
+        return reject(new RepositoryError("Database column does not exist"));
       });
     });
 
