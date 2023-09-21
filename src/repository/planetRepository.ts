@@ -19,7 +19,7 @@ export class PlanetRepository implements IRepository<Planet> {
   }
   async exists(id: string): Promise<boolean> {
     try {
-      return (await this.context.client.planet.count({ where: { id } })) > 1;
+      return (await this.context.client.planet.count({ where: { id } })) > 0;
     } catch (e: any) {
       throw new RepositoryError(e?.message);
     }
