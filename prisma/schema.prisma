@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email       String        @unique
+  password    String
+  Reservation Reservation[]
+}
+
+model Planet {
+  id      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name    String
+  mass    Decimal   @db.Decimal()
+  Station Station[]
+}
+
+model Station {
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  planetId    String        @db.Uuid
+  planet      Planet        @relation(fields: [planetId], references: [id])
+  Reservation Reservation[]
+}
+
+model Reservation {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  stationId String   @db.Uuid
+  station   Station  @relation(fields: [stationId], references: [id])
+  startsAt  DateTime @db.Date
+  endsAt    DateTime @db.Date
+}
