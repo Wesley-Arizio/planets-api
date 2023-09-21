@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start:dev": "nodemon",
+    "seed": "ts-node prisma/seed.ts",
     "test": "jest --silent --detectOpenHandles"
   },
   "keywords": [],
