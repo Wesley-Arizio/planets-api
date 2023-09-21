@@ -8,6 +8,11 @@ export class RepositoryError extends Error {
     super(message);
   }
 }
+
+export type Context<T> = {
+  client: T;
+};
+
 export interface IRepository<T> {
   getMany(pagination: IPagination): Promise<Array<T>>;
   getOne(id: String): Promise<T>;
