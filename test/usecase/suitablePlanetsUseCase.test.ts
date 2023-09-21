@@ -1,3 +1,4 @@
+import { Decimal } from "@prisma/client/runtime/library";
 import { Planet } from "../../src/entities/planet";
 import { RepositoryError } from "../../src/repository";
 import { SuitablePlanetsUseCase } from "../../src/usecase/suitablePlanetsUseCase";
@@ -13,14 +14,12 @@ describe("SuitablePlanetsUseCase", () => {
           {
             id: "1",
             name: "XPTO",
-            mass: 10.12,
-            hasStation: false,
+            mass: new Decimal(10.12),
           },
           {
             id: "2",
             name: "XPTO2",
-            mass: 15.12,
-            hasStation: true,
+            mass: new Decimal(15.12),
           },
         ])
       );
@@ -31,14 +30,12 @@ describe("SuitablePlanetsUseCase", () => {
       {
         id: "1",
         name: "XPTO",
-        mass: 10.12,
-        hasStation: false,
+        mass: new Decimal(10.12),
       },
       {
         id: "2",
         name: "XPTO2",
-        mass: 15.12,
-        hasStation: true,
+        mass: new Decimal(15.12),
       },
     ] as Planet[];
 
