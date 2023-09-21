@@ -5,14 +5,14 @@ import { User } from "../entities/user";
 import { IPagination, IRepository, RepositoryError } from "../repository";
 
 export interface ReservationUseCaseArgs {
-  stationId: String;
+  stationId: string;
   startsAt: Date;
   endsAt: Date;
-  userId: String;
+  userId: string;
 }
 
 export interface IStationReservations extends Partial<IPagination> {
-  stationId: String;
+  stationId: string;
   startsAt?: Date;
   endsAt?: Date;
 }
@@ -21,19 +21,23 @@ export interface IStationRepository extends IRepository<Station> {
   getStationReservations(args: IStationReservations): Promise<Reservation[]>;
 }
 
+export interface IUserRepository extends IRepository<User> {
+  countOngoingUserReservations(userId: string): Promise<number>;
+}
+
 export class ReservationUseCase
   implements IUseCase<Reservation, ReservationUseCaseArgs>
 {
   constructor(
     private readonly stationRepository: IStationRepository,
-    private readonly userRepository: IRepository<User>,
+    private readonly userRepository: IUserRepository,
     private readonly reservationRepository: IRepository<Reservation>
   ) {}
   async execute(args: ReservationUseCaseArgs): Promise<Reservation> {
     try {
       const now = Date.now();
 
-      if (now > args.startsAt.getTime()) {
+      if (now >= args.startsAt.getTime()) {
         throw new Error("startsAt cannot be in the past");
       }
 
@@ -41,11 +45,9 @@ export class ReservationUseCase
         throw new Error("Station not found");
       }
 
-      const { hasOngoingReservation } = await this.userRepository.getOne(
-        args.userId
-      );
-
-      if (hasOngoingReservation) {
+      const countOngoingUserReservations =
+        await this.userRepository.countOngoingUserReservations(args.userId);
+      if (countOngoingUserReservations > 0) {
         throw new Error("User already have an ongoing reservation");
       }
 
@@ -66,10 +68,6 @@ export class ReservationUseCase
         startsAt: args.startsAt,
         endsAt: args.endsAt,
       } as Reservation);
-
-      await this.userRepository.update(args.userId, {
-        hasOngoingReservation: true,
-      });
 
       return reservation;
     } catch (e) {
