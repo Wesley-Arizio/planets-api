@@ -1,10 +1,8 @@
 import { Reservation } from "../../src/entities/reservation";
-import { Station } from "../../src/entities/station";
-import { User } from "../../src/entities/user";
 import { IRepository } from "../../src/repository";
+import { IUserRepository } from "../../src/repository/userRepository";
 import {
   IStationRepository,
-  IUserRepository,
   ReservationUseCase,
   ReservationUseCaseArgs,
 } from "../../src/usecase/reservationUseCase";
@@ -98,7 +96,7 @@ describe("ReservationUseCase", () => {
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
     expect(
       userMockRepository.countOngoingUserReservations
-    ).toHaveBeenCalledWith(args.userId);
+    ).toHaveBeenCalledWith(args.userId, args.endsAt);
   });
 
   it("Should not be able to create a reservation if the station is already in use by another user at the same time", async () => {
@@ -131,7 +129,7 @@ describe("ReservationUseCase", () => {
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
     expect(
       userMockRepository.countOngoingUserReservations
-    ).toHaveBeenCalledWith(args.userId);
+    ).toHaveBeenCalledWith(args.userId, args.endsAt);
     expect(stationMockRepository.getStationReservations).toHaveBeenCalledWith({
       stationId: "any station id",
       startsAt: args.startsAt,
@@ -180,7 +178,7 @@ describe("ReservationUseCase", () => {
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
     expect(
       userMockRepository.countOngoingUserReservations
-    ).toHaveBeenCalledWith(args.userId);
+    ).toHaveBeenCalledWith(args.userId, args.endsAt);
     expect(stationMockRepository.getStationReservations).toHaveBeenCalledWith({
       stationId: "any station id",
       startsAt: args.startsAt,

@@ -1,8 +1,8 @@
 import { IUseCase } from ".";
 import { Reservation } from "../entities/reservation";
 import { Station } from "../entities/station";
-import { User } from "../entities/user";
 import { IPagination, IRepository, RepositoryError } from "../repository";
+import { IUserRepository } from "../repository/userRepository";
 
 export interface ReservationUseCaseArgs {
   stationId: string;
@@ -19,10 +19,6 @@ export interface IStationReservations extends Partial<IPagination> {
 
 export interface IStationRepository extends IRepository<Station> {
   getStationReservations(args: IStationReservations): Promise<Reservation[]>;
-}
-
-export interface IUserRepository extends IRepository<User> {
-  countOngoingUserReservations(userId: string): Promise<number>;
 }
 
 export class ReservationUseCase
@@ -46,7 +42,10 @@ export class ReservationUseCase
       }
 
       const countOngoingUserReservations =
-        await this.userRepository.countOngoingUserReservations(args.userId);
+        await this.userRepository.countOngoingUserReservations(
+          args.userId,
+          args.endsAt
+        );
       if (countOngoingUserReservations > 0) {
         throw new Error("User already have an ongoing reservation");
       }
@@ -71,6 +70,7 @@ export class ReservationUseCase
 
       return reservation;
     } catch (e) {
+      console.log(e);
       if (e instanceof RepositoryError) {
         throw new Error("Internal server error");
       }

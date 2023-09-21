@@ -2,10 +2,10 @@ import { Reservation } from "../../src/entities/reservation";
 import { Station } from "../../src/entities/station";
 import { User } from "../../src/entities/user";
 import { IPagination, IRepository } from "../../src/repository";
+import { IUserRepository } from "../../src/repository/userRepository";
 import {
   IStationRepository,
   IStationReservations,
-  IUserRepository,
 } from "../../src/usecase/reservationUseCase";
 
 export class MockRepository<T> implements IRepository<T> {
