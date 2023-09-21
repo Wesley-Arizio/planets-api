@@ -1,20 +1,65 @@
-import { IPagination, IRepository } from ".";
+import { PrismaClient } from "@prisma/client";
+import { Context, IPagination, IRepository, RepositoryError } from ".";
 import { Planet } from "../entities/planet";
 
 export class PlanetRepository implements IRepository<Planet> {
-  create(value: Planet): Promise<Planet> {
-    throw new Error("Method not implemented.");
+  constructor(private readonly context: Context<PrismaClient>) {}
+
+  async create(value: Planet): Promise<Planet> {
+    try {
+      return await this.context.client.planet.create({
+        data: {
+          name: value.name.toString(),
+          mass: value.mass,
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  exists(id: String): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  async exists(id: string): Promise<boolean> {
+    try {
+      return (await this.context.client.planet.count({ where: { id } })) > 1;
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  getMany(pagination: IPagination): Promise<Planet[]> {
-    throw new Error("Method not implemented.");
+  async getMany(pagination: IPagination): Promise<Planet[]> {
+    try {
+      return await this.context.client.planet.findMany({
+        skip: pagination.offset,
+        take: pagination.limit,
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  getOne(id: String): Promise<Planet> {
-    throw new Error("Method not implemented.");
+  async getOne(id: string): Promise<Planet> {
+    try {
+      const planet = await this.context.client.planet.findUnique({
+        where: { id },
+      });
+
+      if (!planet) {
+        throw new RepositoryError(`Planet with id ${id} not found`);
+      }
+
+      return planet;
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  update(id: String, newValue: Planet): Promise<Planet> {
-    throw new Error("Method not implemented.");
+  async update(id: string, newValue: Planet): Promise<Planet> {
+    try {
+      return await this.context.client.planet.update({
+        where: { id },
+        data: {
+          name: newValue.name,
+          mass: newValue.mass,
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
 }

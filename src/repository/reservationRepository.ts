@@ -1,20 +1,68 @@
-import { IPagination, IRepository } from ".";
+import { PrismaClient } from "@prisma/client";
+import { Context, IPagination, IRepository, RepositoryError } from ".";
 import { Reservation } from "../entities/reservation";
 
 export class ReservationRepository implements IRepository<Reservation> {
-  create(value: Reservation): Promise<Reservation> {
-    throw new Error("Method not implemented.");
+  constructor(private readonly context: Context<PrismaClient>) {}
+  async create(value: Reservation): Promise<Reservation> {
+    try {
+      return await this.context.client.reservation.create({
+        data: {
+          userId: value.userId,
+          stationId: value.stationId,
+          startsAt: value.startsAt,
+          endsAt: value.endsAt,
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  exists(id: String): Promise<boolean> {
-    throw new Error("Method not implemented.");
+  async exists(id: string): Promise<boolean> {
+    try {
+      return (
+        (await this.context.client.reservation.count({ where: { id } })) > 1
+      );
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  getMany(pagination: IPagination): Promise<Reservation[]> {
-    throw new Error("Method not implemented.");
+  async getMany(pagination: IPagination): Promise<Reservation[]> {
+    try {
+      return await this.context.client.reservation.findMany({
+        skip: pagination.offset,
+        take: pagination.limit,
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  getOne(id: String): Promise<Reservation> {
-    throw new Error("Method not implemented.");
+  async getOne(id: string): Promise<Reservation> {
+    try {
+      const reservation = await this.context.client.reservation.findUnique({
+        where: { id },
+      });
+
+      if (!reservation) {
+        throw new RepositoryError(`Reservation with id ${id} not found`);
+      }
+
+      return reservation;
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
-  update(id: String, newValue: Reservation): Promise<Reservation> {
-    throw new Error("Method not implemented.");
+  async update(id: string, newValue: Reservation): Promise<Reservation> {
+    try {
+      return await this.context.client.reservation.update({
+        where: { id },
+        data: {
+          startsAt: newValue.startsAt,
+          endsAt: newValue.endsAt,
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
   }
 }
