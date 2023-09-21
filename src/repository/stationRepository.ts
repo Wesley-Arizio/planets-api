@@ -1,9 +1,41 @@
 import { PrismaClient } from "@prisma/client";
 import { Context, IPagination, IRepository, RepositoryError } from ".";
 import { Station } from "../entities/station";
+import { Reservation } from "../entities/reservation";
 
-export class StationRepository implements IRepository<Station> {
+export interface IStationReservations extends Partial<IPagination> {
+  stationId: string;
+  startsAt?: Date;
+  endsAt?: Date;
+}
+
+export interface IStationRepository extends IRepository<Station> {
+  getStationReservations(args: IStationReservations): Promise<Reservation[]>;
+}
+
+export class StationRepository implements IStationRepository {
   constructor(private readonly context: Context<PrismaClient>) {}
+  async getStationReservations(
+    args: IStationReservations
+  ): Promise<Reservation[]> {
+    try {
+      return await this.context.client.reservation.findMany({
+        take: args.limit,
+        skip: args.offset,
+        where: {
+          stationId: args.stationId,
+          endsAt: {
+            gt: args.startsAt,
+          },
+          startsAt: {
+            lt: args.startsAt,
+          },
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
+  }
   async create(value: Station): Promise<Station> {
     try {
       return await this.context.client.station.create({
@@ -18,7 +50,7 @@ export class StationRepository implements IRepository<Station> {
   }
   async exists(id: string): Promise<boolean> {
     try {
-      return (await this.context.client.station.count({ where: { id } })) > 1;
+      return (await this.context.client.station.count({ where: { id } })) > 0;
     } catch (e: any) {
       throw new RepositoryError(e?.message);
     }
