@@ -1,5 +1,5 @@
 export interface Station {
-  id: String;
-  name: String;
-  planetId: String;
+  id: string;
+  name: string;
+  planetId: string;
 }

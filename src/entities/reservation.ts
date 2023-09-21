@@ -1,7 +1,7 @@
 export interface Reservation {
-  id: String;
-  userId: String;
-  stationId: String;
+  id: string;
+  userId: string;
+  stationId: string;
   startsAt: Date;
   endsAt: Date;
 }

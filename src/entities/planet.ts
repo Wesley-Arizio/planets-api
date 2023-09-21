@@ -1,6 +1,7 @@
+import { Decimal } from "@prisma/client/runtime/library";
+
 export interface Planet {
-  id: String;
-  name: String;
-  mass: Number;
-  hasStation: boolean;
+  id: string;
+  name: string;
+  mass: Decimal;
 }
