@@ -30,8 +30,8 @@ CREATE TABLE "Reservation" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "userId" UUID NOT NULL,
     "stationId" UUID NOT NULL,
-    "startsAt" DATE NOT NULL,
-    "endsAt" DATE NOT NULL,
+    "startsAt" TIMESTAMPTZ NOT NULL,
+    "endsAt" TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT "Reservation_pkey" PRIMARY KEY ("id")
 );

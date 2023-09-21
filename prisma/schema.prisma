@@ -38,6 +38,6 @@ model Reservation {
   user      User     @relation(fields: [userId], references: [id])
   stationId String   @db.Uuid
   station   Station  @relation(fields: [stationId], references: [id])
-  startsAt  DateTime @db.Date
-  endsAt    DateTime @db.Date
+  startsAt  DateTime @db.Timestamptz()
+  endsAt    DateTime @db.Timestamptz()
 }
