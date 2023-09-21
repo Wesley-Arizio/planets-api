@@ -4,20 +4,25 @@ import { User } from "../../src/entities/user";
 import { IRepository } from "../../src/repository";
 import {
   IStationRepository,
+  IUserRepository,
   ReservationUseCase,
   ReservationUseCaseArgs,
 } from "../../src/usecase/reservationUseCase";
-import { MockRepository, StationMockRepository } from "../mock/repository";
+import {
+  MockRepository,
+  StationMockRepository,
+  UserMockRepository,
+} from "../mock/repository";
 
 describe("ReservationUseCase", () => {
   let stationMockRepository: IStationRepository;
-  let userMockRepository: IRepository<User>;
+  let userMockRepository: IUserRepository;
   let reservationRepository: IRepository<Reservation>;
   let usecase: ReservationUseCase;
 
   beforeEach(() => {
     stationMockRepository = new StationMockRepository();
-    userMockRepository = new MockRepository<User>();
+    userMockRepository = new UserMockRepository();
     reservationRepository = new MockRepository<Reservation>();
     usecase = new ReservationUseCase(
       stationMockRepository,
@@ -28,13 +33,21 @@ describe("ReservationUseCase", () => {
     jest.spyOn(stationMockRepository, "exists").mockImplementation(() => {
       return new Promise((resolve) => resolve(true));
     });
-    jest.spyOn(userMockRepository, "getOne").mockImplementation(() => {
-      return new Promise((resolve) =>
-        resolve({ hasOngoingReservation: false } as User)
-      );
-    });
+    jest
+      .spyOn(userMockRepository, "countOngoingUserReservations")
+      .mockImplementation(() => {
+        return new Promise((resolve) => resolve(0));
+      });
   });
 
+  const getDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(new Date().getDate() + 1);
+    return {
+      startsAt: tomorrow,
+      endsAt: tomorrow,
+    };
+  };
   it("Should not be able to create a reservation if startsAt is in the past", async () => {
     const args: ReservationUseCaseArgs = {
       stationId: "any station id",
@@ -52,10 +65,11 @@ describe("ReservationUseCase", () => {
     jest.spyOn(stationMockRepository, "exists").mockImplementationOnce(() => {
       return new Promise((resolve) => resolve(false));
     });
+    const { startsAt, endsAt } = getDate();
     const args: ReservationUseCaseArgs = {
       stationId: "any station id",
-      startsAt: new Date(),
-      endsAt: new Date(),
+      startsAt,
+      endsAt,
       userId: "1",
     };
 
@@ -64,15 +78,17 @@ describe("ReservationUseCase", () => {
   });
 
   it("Should not be able to create a reservation if user already have a ongoing one", async () => {
-    jest.spyOn(userMockRepository, "getOne").mockImplementationOnce(() => {
-      return new Promise((resolve) =>
-        resolve({ hasOngoingReservation: true } as User)
-      );
-    });
+    jest
+      .spyOn(userMockRepository, "countOngoingUserReservations")
+      .mockImplementationOnce(() => {
+        return new Promise((resolve) => resolve(1));
+      });
+
+    const { startsAt, endsAt } = getDate();
     const args: ReservationUseCaseArgs = {
       stationId: "any station id",
-      startsAt: new Date(),
-      endsAt: new Date(),
+      startsAt,
+      endsAt,
       userId: "1",
     };
 
@@ -80,10 +96,13 @@ describe("ReservationUseCase", () => {
       "User already have an ongoing reservation"
     );
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
-    expect(userMockRepository.getOne).toHaveBeenCalledWith(args.userId);
+    expect(
+      userMockRepository.countOngoingUserReservations
+    ).toHaveBeenCalledWith(args.userId);
   });
 
   it("Should not be able to create a reservation if the station is already in use by another user at the same time", async () => {
+    const { startsAt, endsAt } = getDate();
     jest
       .spyOn(stationMockRepository, "getStationReservations")
       .mockImplementation(() => {
@@ -93,17 +112,16 @@ describe("ReservationUseCase", () => {
               id: "1",
               userId: "1",
               stationId: "1",
-              startsAt: new Date(),
-              endsAt: new Date(),
+              startsAt,
+              endsAt,
             },
           ])
         );
       });
-
     const args: ReservationUseCaseArgs = {
       stationId: "any station id",
-      startsAt: new Date(),
-      endsAt: new Date(),
+      startsAt,
+      endsAt,
       userId: "1",
     };
 
@@ -111,7 +129,9 @@ describe("ReservationUseCase", () => {
       "The selected station is already ocupied"
     );
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
-    expect(userMockRepository.getOne).toHaveBeenCalledWith(args.userId);
+    expect(
+      userMockRepository.countOngoingUserReservations
+    ).toHaveBeenCalledWith(args.userId);
     expect(stationMockRepository.getStationReservations).toHaveBeenCalledWith({
       stationId: "any station id",
       startsAt: args.startsAt,
@@ -127,14 +147,11 @@ describe("ReservationUseCase", () => {
         return new Promise((resolve) => resolve([]));
       });
 
-    jest.spyOn(userMockRepository, "update").mockImplementation(() => {
-      return new Promise((resolve) => resolve({} as User));
-    });
-
+    const { startsAt, endsAt } = getDate();
     const args: ReservationUseCaseArgs = {
       stationId: "any station id",
-      startsAt: new Date(),
-      endsAt: new Date(),
+      startsAt,
+      endsAt,
       userId: "1",
     };
 
@@ -161,15 +178,14 @@ describe("ReservationUseCase", () => {
 
     expect(response).toStrictEqual(expected);
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
-    expect(userMockRepository.getOne).toHaveBeenCalledWith(args.userId);
+    expect(
+      userMockRepository.countOngoingUserReservations
+    ).toHaveBeenCalledWith(args.userId);
     expect(stationMockRepository.getStationReservations).toHaveBeenCalledWith({
       stationId: "any station id",
       startsAt: args.startsAt,
       endsAt: args.endsAt,
       limit: 1,
-    });
-    expect(userMockRepository.update).toHaveBeenCalledWith(args.userId, {
-      hasOngoingReservation: true,
     });
   });
 });
