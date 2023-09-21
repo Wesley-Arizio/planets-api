@@ -2,8 +2,28 @@ import { PrismaClient } from "@prisma/client";
 import { Context, IPagination, IRepository, RepositoryError } from ".";
 import { User } from "../entities/user";
 
-export class UserRepository implements IRepository<User> {
+export interface IUserRepository extends IRepository<User> {
+  countOngoingUserReservations(userId: string, endsAt: Date): Promise<number>;
+}
+
+export class UserRepository implements IUserRepository {
   constructor(private readonly context: Context<PrismaClient>) {}
+  async countOngoingUserReservations(
+    userId: string,
+    endsAt: Date
+  ): Promise<number> {
+    try {
+      return await this.context.client.reservation.count({
+        where: {
+          userId,
+          startsAt: { gte: new Date(Date.now()) },
+          endsAt: { lte: endsAt },
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
+  }
   async create(value: User): Promise<User> {
     try {
       return await this.context.client.user.create({
