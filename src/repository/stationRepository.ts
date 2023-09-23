@@ -9,10 +9,14 @@ export interface IStationReservations extends Partial<IPagination> {
   endsAt?: Date;
 }
 
-export interface IStationRepository extends IRepository<Station> {
-  getStationReservations(args: IStationReservations): Promise<Reservation[]>;
+export interface IStationsByPlanet extends Partial<IPagination> {
+  planetId: string;
 }
 
+export interface IStationRepository extends IRepository<Station> {
+  getStationReservations(args: IStationReservations): Promise<Reservation[]>;
+  getStationsByPlanet(args: IStationsByPlanet): Promise<Station[]>;
+}
 export class StationRepository implements IStationRepository {
   constructor(private readonly context: Context<PrismaClient>) {}
   async getStationReservations(
@@ -20,16 +24,37 @@ export class StationRepository implements IStationRepository {
   ): Promise<Reservation[]> {
     try {
       return await this.context.client.reservation.findMany({
-        take: args.limit,
-        skip: args.offset,
         where: {
-          stationId: args.stationId,
-          endsAt: {
-            gt: args.startsAt,
-          },
-          startsAt: {
-            lt: args.startsAt,
-          },
+          OR: [
+            {
+              AND: [
+                {
+                  startsAt: {
+                    lte: args.endsAt,
+                  },
+                },
+                {
+                  endsAt: {
+                    gte: args.startsAt,
+                  },
+                },
+              ],
+            },
+            {
+              AND: [
+                {
+                  startsAt: {
+                    gte: args.startsAt,
+                  },
+                },
+                {
+                  endsAt: {
+                    lte: args.endsAt,
+                  },
+                },
+              ],
+            },
+          ],
         },
       });
     } catch (e: any) {
@@ -55,6 +80,21 @@ export class StationRepository implements IStationRepository {
       throw new RepositoryError(e?.message);
     }
   }
+
+  async getStationsByPlanet(args: IStationsByPlanet): Promise<Station[]> {
+    try {
+      return await this.context.client.station.findMany({
+        skip: args.offset,
+        take: args.limit,
+        where: {
+          planetId: args.planetId,
+        },
+      });
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
+  }
+
   async getMany(pagination: IPagination): Promise<Station[]> {
     try {
       return await this.context.client.station.findMany({
