@@ -29,6 +29,9 @@ export class PlanetRepository implements IRepository<Planet> {
       return await this.context.client.planet.findMany({
         skip: pagination.offset,
         take: pagination.limit,
+        orderBy: {
+          mass: "asc",
+        },
       });
     } catch (e: any) {
       throw new RepositoryError(e?.message);
