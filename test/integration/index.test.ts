@@ -76,6 +76,25 @@ describe("Workflow", () => {
 
     const stationId = stationResponse.body.data.installStation.id;
 
+    // Stations from a planet
+    const stationsResponse = await request(res.url)
+      .post("/")
+      .send({
+        query: `query ListStations($data: StationsInput!) {
+          stations(data: $data) {
+            id
+            name
+          }
+        }
+        `,
+        variables: { data: { planetId, offset: 0, limit: 5 } },
+      });
+    console.log(stationsResponse);
+    expect(stationsResponse.status).toBe(200);
+    expect(stationsResponse.body.data.stations.length).toBe(1);
+    expect(stationsResponse.body.data.stations[0].id).toBe(stationId);
+    expect(stationsResponse.body.data.stations[0].name).toBe("spacex");
+
     // Create a new user
     const userResponse = await request(res.url)
       .post("/")
