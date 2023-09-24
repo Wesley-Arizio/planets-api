@@ -1,7 +1,7 @@
 import { IUseCase } from ".";
 import { Reservation } from "../entities/reservation";
-import { Station } from "../entities/station";
 import { IPagination, IRepository, RepositoryError } from "../repository";
+import { IStationRepository } from "../repository/stationRepository";
 import { IUserRepository } from "../repository/userRepository";
 
 export interface ReservationUseCaseArgs {
@@ -15,10 +15,6 @@ export interface IStationReservations extends Partial<IPagination> {
   stationId: string;
   startsAt?: Date;
   endsAt?: Date;
-}
-
-export interface IStationRepository extends IRepository<Station> {
-  getStationReservations(args: IStationReservations): Promise<Reservation[]>;
 }
 
 export class ReservationUseCase
@@ -58,7 +54,7 @@ export class ReservationUseCase
       });
 
       if (reservations.length > 0) {
-        throw new Error("The selected station is already ocupied");
+        throw new Error("The selected station is already occupied");
       }
 
       const reservation = await this.reservationRepository.create({
