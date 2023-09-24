@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node build/src/index.js",
-    "start:dev": "nodemon",
+    "start:dev": "npm run migrate:dev && npm run seed && nodemon",
     "build": "tsc",
-    "migrate:dev": "npx prisma migrate dev --name init",
+    "migrate:dev": "npx prisma db push --force-reset",
     "seed": "ts-node prisma/seed.ts",
     "test": "jest --silent --detectOpenHandles",
     "test:unit": "jest --silent --detectOpenHandles test/unit/**/*.test.ts",
