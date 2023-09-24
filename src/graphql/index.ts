@@ -1,4 +1,4 @@
-import { ApolloServer } from "@apollo/server";
+import { ApolloServer, BaseContext } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { buildSchema } from "type-graphql";
 import { PlanetResolver } from "./resolver";
@@ -19,4 +19,6 @@ export async function GraphqlModule(graphqlPort: number) {
   });
 
   console.log(`App running at ${url}`);
+
+  return { server, url };
 }
