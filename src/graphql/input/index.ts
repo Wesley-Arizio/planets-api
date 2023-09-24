@@ -10,6 +10,18 @@ export class PaginationInput {
 }
 
 @InputType()
+export class StationsInput {
+  @Field(() => ID!)
+  planetId: string;
+
+  @Field()
+  limit: number;
+
+  @Field()
+  offset: number;
+}
+
+@InputType()
 export class InstallStationInput {
   @Field()
   name: string;

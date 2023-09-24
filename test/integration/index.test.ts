@@ -32,7 +32,9 @@ describe("Workflow", () => {
       .send({
         query: `query ListPlanets($data: PaginationInput!) {
           suitablePlanets(data: $data) {
-              id
+            id
+            name
+            mass
           }
         }`,
         variables: { data: { limit: 1, offset: 0 } },
@@ -40,6 +42,8 @@ describe("Workflow", () => {
 
     expect(response.status).toBe(200);
     expect(response.body.data.suitablePlanets[0].id).toBeDefined();
+    expect(response.body.data.suitablePlanets[0].name).toBe("Kepler-37 b");
+    expect(response.body.data.suitablePlanets[0].mass).toBe(10);
 
     const planetId = response.body.data.suitablePlanets[0].id;
 
@@ -51,6 +55,11 @@ describe("Workflow", () => {
         installStation(data: $data) {
             id
             name
+            planet {
+              id
+              name
+              mass
+            }
         }
       }`,
         variables: { data: { name: "spacex", planetId } },
@@ -59,6 +68,11 @@ describe("Workflow", () => {
     expect(stationResponse.status).toBe(200);
     expect(stationResponse.body.data.installStation.id).toBeDefined();
     expect(stationResponse.body.data.installStation.name).toBe("spacex");
+    expect(stationResponse.body.data.installStation.planet.id).toBe(planetId);
+    expect(stationResponse.body.data.installStation.planet.name).toBe(
+      "Kepler-37 b"
+    );
+    expect(stationResponse.body.data.installStation.planet.mass).toBe(10);
 
     const stationId = stationResponse.body.data.installStation.id;
 
@@ -95,6 +109,13 @@ describe("Workflow", () => {
               id
               startsAt
               endsAt
+              station {
+                id
+                name
+                planet {
+                  name
+                }
+              }
           }
         }`,
         variables: {
@@ -111,6 +132,15 @@ describe("Workflow", () => {
     expect(userReservation1.body.data.reservateStation.id).toBeDefined();
     expect(userReservation1.body.data.reservateStation.startsAt).toBe(startsAt);
     expect(userReservation1.body.data.reservateStation.endsAt).toBe(endsAt);
+    expect(userReservation1.body.data.reservateStation.station.id).toBe(
+      stationId
+    );
+    expect(userReservation1.body.data.reservateStation.station.name).toBe(
+      "spacex"
+    );
+    expect(
+      userReservation1.body.data.reservateStation.station.planet.name
+    ).toBe("Kepler-37 b");
 
     const userResponse2 = await request(res.url)
       .post("/")

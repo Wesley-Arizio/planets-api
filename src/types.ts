@@ -5,4 +5,6 @@ export const TYPES = {
   GetPlanetUseCase: "GetPlanetUseCase",
   ReservationUseCase: "ReservationUseCase",
   CreateUserUseCase: "CreateUserUseCase",
+  GetPlanetByStationUseCase: "GetPlanetByUseCase",
+  GetStationUseCase: "GetStationUseCase",
 };

@@ -9,6 +9,8 @@ import { listStationsFactory } from "./usecase/factory/listStationsFactory";
 import { getPlanetFactory } from "./usecase/factory/getPlanetFactory";
 import { reservationFactory } from "./usecase/factory/reservationFactory";
 import { createUserFactory } from "./usecase/factory/createUserFactory";
+import { getPlanetByStationFactory } from "./usecase/factory/getPlanetByStationFactory";
+import { getStationFactory } from "./usecase/factory/getStationFactory";
 
 export async function main() {
   const repositoryContext = {
@@ -43,6 +45,16 @@ export async function main() {
   Container.set({
     id: TYPES.CreateUserUseCase,
     factory: () => createUserFactory(repositoryContext),
+  });
+
+  Container.set({
+    id: TYPES.GetPlanetByStationUseCase,
+    factory: () => getPlanetByStationFactory(repositoryContext),
+  });
+
+  Container.set({
+    id: TYPES.GetStationUseCase,
+    factory: () => getStationFactory(repositoryContext),
   });
 
   const graphqlPort = Number(process.env.GRAPHQL_PORT) || 4000;

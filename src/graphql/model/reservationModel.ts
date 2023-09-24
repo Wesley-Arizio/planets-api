@@ -10,4 +10,10 @@ export class Reservation {
 
   @Field()
   endsAt: Date;
+
+  @Field(() => ID!)
+  stationId: string;
+
+  @Field(() => ID!)
+  userId: string;
 }

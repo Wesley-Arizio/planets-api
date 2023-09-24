@@ -1,12 +1,16 @@
 import { ApolloServer, BaseContext } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
 import { buildSchema } from "type-graphql";
-import { PlanetResolver } from "./resolver";
+import {
+  PlanetResolver,
+  ReservationResolver,
+  StationResolver,
+} from "./resolver";
 import { Container } from "typedi";
 
 export async function GraphqlModule(graphqlPort: number) {
   const schema = await buildSchema({
-    resolvers: [PlanetResolver],
+    resolvers: [PlanetResolver, StationResolver, ReservationResolver],
     container: Container,
   });
 
