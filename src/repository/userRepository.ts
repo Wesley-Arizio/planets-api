@@ -16,8 +16,7 @@ export class UserRepository implements IUserRepository {
       return await this.context.client.reservation.count({
         where: {
           userId,
-          startsAt: { gte: new Date(Date.now()) },
-          endsAt: { lte: endsAt },
+          endsAt: { gte: endsAt },
         },
       });
     } catch (e: any) {
