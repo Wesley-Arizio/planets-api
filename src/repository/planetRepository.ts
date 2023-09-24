@@ -2,8 +2,33 @@ import { PrismaClient } from "@prisma/client";
 import { Context, IPagination, IRepository, RepositoryError } from ".";
 import { Planet } from "../entities/planet";
 
-export class PlanetRepository implements IRepository<Planet> {
+export interface IPlanetRepository extends IRepository<Planet> {
+  getPlanetByStation(stationId: string): Promise<Planet>;
+}
+
+export class PlanetRepository implements IPlanetRepository {
   constructor(private readonly context: Context<PrismaClient>) {}
+  async getPlanetByStation(stationId: string): Promise<Planet> {
+    try {
+      const planet = await this.context.client.planet.findFirst({
+        include: {
+          Station: {
+            where: {
+              id: stationId,
+            },
+          },
+        },
+      });
+
+      if (!planet) {
+        throw new RepositoryError(`Planet from station ${stationId} not found`);
+      }
+
+      return planet;
+    } catch (e: any) {
+      throw new RepositoryError(e?.message);
+    }
+  }
 
   async create(value: Planet): Promise<Planet> {
     try {
