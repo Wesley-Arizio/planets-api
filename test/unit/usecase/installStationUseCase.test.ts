@@ -1,8 +1,8 @@
-import { Planet } from "../../src/entities/planet";
-import { Station } from "../../src/entities/station";
-import { RepositoryError } from "../../src/repository";
-import { StationRepository } from "../../src/repository/stationRepository";
-import { InstallStationUseCase } from "../../src/usecase/installStationUseCase";
+import { Planet } from "../../../src/entities/planet";
+import { Station } from "../../../src/entities/station";
+import { RepositoryError } from "../../../src/repository";
+import { StationRepository } from "../../../src/repository/stationRepository";
+import { InstallStationUseCase } from "../../../src/usecase/installStationUseCase";
 import { MockRepository } from "../mock/repository";
 
 describe("InstallStationUseCase", () => {

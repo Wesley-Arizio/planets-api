@@ -1,7 +1,7 @@
 import { Decimal } from "@prisma/client/runtime/library";
-import { Planet } from "../../src/entities/planet";
-import { RepositoryError } from "../../src/repository";
-import { SuitablePlanetsUseCase } from "../../src/usecase/suitablePlanetsUseCase";
+import { Planet } from "../../../src/entities/planet";
+import { RepositoryError } from "../../../src/repository";
+import { SuitablePlanetsUseCase } from "../../../src/usecase/suitablePlanetsUseCase";
 import { MockRepository } from "../mock/repository";
 
 describe("SuitablePlanetsUseCase", () => {

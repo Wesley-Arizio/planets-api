@@ -1,11 +1,11 @@
-import { Reservation } from "../../src/entities/reservation";
-import { IRepository } from "../../src/repository";
-import { IUserRepository } from "../../src/repository/userRepository";
+import { Reservation } from "../../../src/entities/reservation";
+import { IRepository } from "../../../src/repository";
+import { IStationRepository } from "../../../src/repository/stationRepository";
+import { IUserRepository } from "../../../src/repository/userRepository";
 import {
-  IStationRepository,
   ReservationUseCase,
   ReservationUseCaseArgs,
-} from "../../src/usecase/reservationUseCase";
+} from "../../../src/usecase/reservationUseCase";
 import {
   MockRepository,
   StationMockRepository,
@@ -124,7 +124,7 @@ describe("ReservationUseCase", () => {
     };
 
     await expect(usecase.execute(args)).rejects.toThrow(
-      "The selected station is already ocupied"
+      "The selected station is already occupied"
     );
     expect(stationMockRepository.exists).toHaveBeenCalledWith(args.stationId);
     expect(

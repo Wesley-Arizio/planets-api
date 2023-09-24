@@ -1,12 +1,13 @@
-import { Reservation } from "../../src/entities/reservation";
-import { Station } from "../../src/entities/station";
-import { User } from "../../src/entities/user";
-import { IPagination, IRepository } from "../../src/repository";
-import { IUserRepository } from "../../src/repository/userRepository";
+import { Reservation } from "../../../src/entities/reservation";
+import { Station } from "../../../src/entities/station";
+import { User } from "../../../src/entities/user";
+import { IPagination, IRepository } from "../../../src/repository";
 import {
   IStationRepository,
-  IStationReservations,
-} from "../../src/usecase/reservationUseCase";
+  IStationsByPlanet,
+} from "../../../src/repository/stationRepository";
+import { IUserRepository } from "../../../src/repository/userRepository";
+import { IStationReservations } from "../../../src/usecase/reservationUseCase";
 
 export class MockRepository<T> implements IRepository<T> {
   create(value: T): Promise<T> {
@@ -27,6 +28,9 @@ export class MockRepository<T> implements IRepository<T> {
 }
 
 export class StationMockRepository implements IStationRepository {
+  getStationsByPlanet(args: IStationsByPlanet): Promise<Station[]> {
+    throw new Error("Method not implemented.");
+  }
   getStationReservations(args: IStationReservations): Promise<Reservation[]> {
     throw new Error("Method not implemented.");
   }
