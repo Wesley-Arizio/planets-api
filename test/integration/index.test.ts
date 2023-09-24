@@ -89,7 +89,7 @@ describe("Workflow", () => {
         `,
         variables: { data: { planetId, offset: 0, limit: 5 } },
       });
-    console.log(stationsResponse);
+
     expect(stationsResponse.status).toBe(200);
     expect(stationsResponse.body.data.stations.length).toBe(1);
     expect(stationsResponse.body.data.stations[0].id).toBe(stationId);
@@ -328,5 +328,106 @@ describe("Workflow", () => {
     expect(userReservation6.body.data.reservateStation.id).toBeDefined();
     expect(userReservation6.body.data.reservateStation.startsAt).toBe(startsAt);
     expect(userReservation6.body.data.reservateStation.endsAt).toBe(endsAt);
+
+    // User tries to make a reservation for a time in the past
+    startsAt = "2023-04-10T08:30:00.000Z";
+    endsAt = "2023-04-10T08:50:00.000Z";
+
+    const userReservation7 = await request(res.url)
+      .post("/")
+      .send({
+        query: `mutation CreateReservation($data: RervateStationInput!) {
+          reservateStation(data: $data) {
+            id
+            startsAt
+            endsAt
+        }
+      }`,
+        variables: {
+          data: {
+            startsAt,
+            endsAt,
+            userId: userId2,
+            stationId,
+          },
+        },
+      });
+
+    expect(userReservation7.status).toBe(200);
+    expect(userReservation7.body.errors[0].message).toBe(
+      "startsAt cannot be in the past"
+    );
+
+    // User tries to make a reservation in a station that does not exist
+    startsAt = "2023-04-12T14:30:00.000Z";
+    endsAt = "2023-04-12T19:50:00.000Z";
+
+    const userReservation8 = await request(res.url)
+      .post("/")
+      .send({
+        query: `mutation CreateReservation($data: RervateStationInput!) {
+              reservateStation(data: $data) {
+                id
+                startsAt
+                endsAt
+            }
+          }`,
+        variables: {
+          data: {
+            startsAt,
+            endsAt,
+            userId: userId2,
+            stationId: "da2f20ff-cb66-49ac-8344-d1d13f6796fc",
+          },
+        },
+      });
+
+    expect(userReservation8.status).toBe(200);
+    expect(userReservation8.body.errors[0].message).toBe("Station not found");
+
+    // Second user make a reservation right after the first user
+    startsAt = "2023-04-11T09:00:01.000Z";
+    endsAt = "2023-04-11T10:00:00.000Z";
+
+    const userReservation9 = await request(res.url)
+      .post("/")
+      .send({
+        query: `mutation CreateReservation($data: RervateStationInput!) {
+            reservateStation(data: $data) {
+              id
+              startsAt
+              endsAt
+              station {
+                id
+                name
+                planet {
+                  name
+                }
+              }
+          }
+        }`,
+        variables: {
+          data: {
+            startsAt,
+            endsAt,
+            userId: userId2,
+            stationId,
+          },
+        },
+      });
+
+    expect(userReservation9.status).toBe(200);
+    expect(userReservation9.body.data.reservateStation.id).toBeDefined();
+    expect(userReservation9.body.data.reservateStation.startsAt).toBe(startsAt);
+    expect(userReservation9.body.data.reservateStation.endsAt).toBe(endsAt);
+    expect(userReservation9.body.data.reservateStation.station.id).toBe(
+      stationId
+    );
+    expect(userReservation9.body.data.reservateStation.station.name).toBe(
+      "spacex"
+    );
+    expect(
+      userReservation9.body.data.reservateStation.station.planet.name
+    ).toBe("Kepler-37 b");
   });
 });
