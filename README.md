@@ -33,6 +33,10 @@ Após navegar ao diretório do projeto rodar o comando:
 ```sh 
 docker comopose up -d
 ```
+Instalar as dependências
+```sh
+npm ci
+```
 Rodando o comando a seguir, irá rodar as migrations (sincronizar o banco de dados com as schemas definidas no projeto) e popoular o banco de dado usando a seed no arquivo `prisma/seed.ts`
 
 ```sh
