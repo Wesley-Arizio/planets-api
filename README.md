@@ -26,6 +26,8 @@ npm run test:integration # rodar apenas o teste de integração.
 npm run test # rodar todos os testes.
 ```
 
+OBS: Para rodar testes de integração é necessário primeiro iniciar o docker e rodar o comando abaixo.
+
 ### Iniciando o projeto
 
 Para iniciar o projeto, é necessário primeiro configurar o banco de dados usando o docker.
